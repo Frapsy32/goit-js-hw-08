@@ -64,28 +64,43 @@ const images = [
   },
 ];
 
-const gallery = document.querySelector(".gallery");
+const galleryList = document.querySelector(".gallery");
+const galleryItems = images
+  .map(({ preview, original, description }) => {
+    return `
+            <li class="gallery-item">
+                <a class="gallery-link" href="${original}">
+                    <img
+                        class="gallery-image"
+                        src="${preview}"
+                        data-source="${original}"
+                        alt="${description}"
+                    />
+                </a>
+            </li>
+            `;
+  })
+  .join("");
+galleryList.innerHTML = galleryItems;
 
-images.forEach((image) => {
-  gallery.innerHTML += `<li>
-    <a class='gallery-link' href='${image.original}'>
-    <img
-    style='width:360px'
-    class='gallery-image'
-    src='${image.preview}'
-    data-source='${image.original}'
-    alt='${image.description}'
-    /></a>
-    </li>`;
-});
-
-const galleryImage = document.querySelector("gallery-image");
-
-galleryImage.addEventListener("click", getOriginalImg);
-function getOriginalImg() {
-  console.log(image.original);
-}
-
-image.addEventListener("click", (event) => {
-  event.preventDefault();
+galleryList.addEventListener("click", (e) => {
+  e.preventDefault();
+  const target = e.target;
+  if (target.nodeName === "IMG") {
+    const largeImageURL = target.dataset.source;
+    const instance = basicLightbox.create(
+      `
+                    <img src="${largeImageURL}" width="800" height="600">
+                `,
+      {
+        onShow: (instance) => {
+          document.body.style.overflow = "hidden";
+        },
+        onClose: (instance) => {
+          document.body.style.overflow = "";
+        },
+      }
+    );
+    instance.show();
+  }
 });
